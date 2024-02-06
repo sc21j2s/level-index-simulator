@@ -8,7 +8,8 @@
 % C. W. Clenshaw and F. W. J. Olver, Beyond floating point,
 % Journal of the ACM, 31 (1984), p. 319–328.
 %
-% M. Mikaitis, MATLAB Simulator of Level Index Arithmetic, In Prep., 2024.
+% M. Mikaitis, MATLAB Simulator of Level Index Arithmetic,
+% arXiv:2402.02301 [cs.MS]. Feb. 2024.
 
 classdef sli
 

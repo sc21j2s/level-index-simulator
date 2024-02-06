@@ -40,7 +40,7 @@ The code was developed on MATLAB 2023b. Experiments make use of the [CPFloat](ht
 
 ## References
 
-[1] Mantas Mikaitis. [*MATLAB Simulator of Level-Index Arithmetic*](https://). In Prep., Feb. 2024.
+[1] Mantas Mikaitis. [*MATLAB Simulator of Level-Index Arithmetic*](https://arxiv.org/abs/2402.02301). arXiv:2402.02301 [cs.MS]. Feb. 2024.
 
 ## Licence
 

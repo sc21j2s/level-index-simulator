@@ -3,7 +3,8 @@
 %
 % References
 %
-% M. Mikaitis, MATLAB Simulator of Level Index Arithmetic, In Prep., 2024.
+% M. Mikaitis, MATLAB Simulator of Level Index Arithmetic,
+% arXiv:2402.02301 [cs.MS]. Feb. 2024.
 
 clear all;
 
