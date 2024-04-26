@@ -13,7 +13,7 @@
 
 classdef sli
 
-    properties (SetAccess = protected)
+    properties
         level_bits = 2
         index_bits = 12
         sign
@@ -39,6 +39,7 @@ classdef sli
                 obj.index = 0;
                 obj.reciprocal = 0;
                 obj = update_double(obj);
+                obj = obj(1);
                 return;
             end
             if (temp < 1)
@@ -54,6 +55,7 @@ classdef sli
             end
             obj.index = temp;
             obj = update_double(obj);
+            obj = obj(1);
         end
 
         function obj = set_sli(obj, s, r, level, index)
@@ -115,7 +117,7 @@ classdef sli
                 end
                 if (a(k).sign ~= b(k).sign)
                     r(k) = minus(abs(a(k)),abs(b(k)));
-                    r(k).sign = a(k).sign;
+                    r(k) = setfield(r(k), 'sign', a(k).sign);
                     r(k) = update_double(r(k));
                     continue;
                 end
@@ -133,7 +135,7 @@ classdef sli
                 end
                 if iszero(a(k))
                     r(k) = b(k);
-                    r(k).sign = ~b(k).sign;
+                    r(k) = setfield(r(k), 'sign', ~b(k).sign);
                     r(k) = update_double(r(k));
                     continue;
                 elseif iszero(b(k))
@@ -142,7 +144,7 @@ classdef sli
                 end
                 if (a(k).sign ~= b(k).sign)
                     r(k) = plus(abs(a(k)),abs(b(k)));
-                    r(k).sign = a(k).sign;
+                    r(k) = setfield(r(k), 'sign', a(k).sign);
                     r(k) = update_double(r(k));
                     continue;
                 end
@@ -150,7 +152,7 @@ classdef sli
                     temp = a(k);
                     a(k) = b(k);
                     b(k) = temp;
-                    a(k).sign = ~a(k).sign;
+                    a(k) = setfield(a(k), 'sign', ~a(k).sign);
                 end
                 r(k) = main_sli_algorithm(a(k), b(k), 'sub');
             end
@@ -177,28 +179,31 @@ classdef sli
                     continue;
                 end
 
-                if (li_le(abs(a(k)), abs(b(k))))
+                absa = abs(a(k)); absa = absa(1);
+                absb = abs(b(k)); absb = absb(1);
+                if (li_le(absa, absb))
                     temp = a(k);
                     a(k) = b(k);
                     b(k) = temp;
                 end
-                a(k).level = a(k).level - 1;
-                b(k).level = b(k).level - 1;
+                a(k) = setfield(a(k), 'level', a(k).level-1);
+                b(k) = setfield(b(k), 'level', b(k).level-1);
+                absa = abs(a(k)); absa = absa(1);
+                absb = abs(b(k)); absb = absb(1);
                 if (a(k).reciprocal == b(k).reciprocal)
-                    r(k) = li_add(abs(a(k)), abs(b(k)));
-                    r(k).reciprocal = a(k).reciprocal;
+                    r(k) = li_add(absa, absb);
                 else
-                    r(k) = li_sub(abs(a(k)), abs(b(k)));
-                    r(k).reciprocal = a(k).reciprocal;
+                    r(k) = li_sub(absa, absb);
                 end
-                r(k).level = r(k).level + 1;
+                r(k) = setfield(r(k), 'reciprocal', a(k).reciprocal);
+                r(k) = setfield(r(k), 'level', r(k).level + 1);
                 if (a(k).sign ~= b(k).sign)
-                    r(k).sign = 1;
+                    r(k) = setfield(r(k), 'sign', 1);
                 else
-                    r(k).sign = 0;
-                end
+                    r(k) = setfield(r(k), 'sign', 0);
+                    end
                 if (iszero(r(k)))
-                    r(k).reciprocal = 1;
+                    r(k) = setfield(r(k), 'reciprocal', 1);
                 end
                 r(k) = update_double(r(k));
 
@@ -210,7 +215,7 @@ classdef sli
             ibits = A(1).index_bits;
             [m, k1] = size(A);
             [k2, n] = size(B);
-            R = zeros(m, n, lbits, ibits, 'sli');
+            R = sli.zeros(m, n, lbits, ibits);
 
             if (k1 ~= k2)
                 error('Incompatible matrix or vector dimensions.');
@@ -235,32 +240,35 @@ classdef sli
                     error('Division by zero');
                 end
                 invert_recipr = 0;
-                if (li_le(abs(a(k)), abs(b(k))))
+                absa = abs(a(k)); absa = absa(1);
+                absb = abs(b(k)); absb = absb(1);
+                if (li_le(absa, absb))
                     temp = a(k);
                     a(k) = b(k);
                     b(k) = temp;
                     invert_recipr = 1;
                 end
-                a(k).level = a(k).level - 1;
-                b(k).level = b(k).level - 1;
+                a(k) = setfield(a(k), 'level', a(k).level-1);
+                b(k) = setfield(b(k), 'level', b(k).level-1);
+                absa = abs(a(k)); absa = absa(1);
+                absb = abs(b(k)); absb = absb(1);
                 if (a(k).reciprocal == b(k).reciprocal)
-                    r(k) = li_sub(abs(a(k)), abs(b(k)));
-                    r(k).reciprocal = a(k).reciprocal;
+                    r(k) = li_sub(absa, absb);
                 else
-                    r(k) = li_add(abs(a(k)), abs(b(k)));
-                    r(k).reciprocal = a(k).reciprocal;
+                    r(k) = li_add(absa, absb);
                 end
+                r(k) = setfield(r(k), 'reciprocal', a(k).reciprocal);
+                r(k) = setfield(r(k), 'level', r(k).level + 1);
                 if invert_recipr
-                    r(k).reciprocal = ~r(k).reciprocal;
+                    r(k) = setfield(r(k), 'reciprocal', ~r(k).reciprocal);
                 end
-                r(k).level = r(k).level + 1;
                 if (a(k).sign ~= b(k).sign)
-                    r(k).sign = 1;
+                    r(k) = setfield(r(k), 'sign', 1);
                 else
-                    r(k).sign = 0;
+                    r(k) = setfield(r(k), 'sign', 0);
                 end
                 if (iszero(r(k)))
-                    r(k).reciprocal = 1;
+                    r(k) = setfield(r(k), 'reciprocal', 1);
                 end
                 r(k) = update_double(r(k));
             end
@@ -311,6 +319,15 @@ classdef sli
 
         function r = ne(a, b)
             r = ~eq(a,b);
+        end
+
+        function r = transpose(a)
+          [nrows, ncolumns] = size(a);
+          for i = 1:nrows
+            for j = 1:ncolumns
+              r(j,i) = a(i,j);
+            end
+          end
         end
     end
 
@@ -380,13 +397,13 @@ classdef sli
                 end
                 obj(s).value = exp([obj(s).index]);
                 for i = 2:obj(s).level
-                    obj.value = exp(obj.value);
+                    obj(s).value = exp(obj(s).value);
                 end
                 if ~obj(s).reciprocal
-                    obj.value = 1/obj.value;
+                    obj(s).value = 1/obj(s).value;
                 end
                 if obj(s).sign
-                    obj.value = -obj.value;
+                    obj(s).value = -obj(s).value;
                 end
             end
         end
