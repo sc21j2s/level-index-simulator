@@ -161,10 +161,12 @@ classdef sli
         function r = uminus(a)
             a.sign = ~a.sign;
             r = a;
+            r = update_double(r);
         end
 
         function r = uplus(a)
             r = a;
+            r = update_double(r);
         end
 
         function r = times(a, b)
@@ -206,7 +208,6 @@ classdef sli
                     r(k) = setfield(r(k), 'reciprocal', 1);
                 end
                 r(k) = update_double(r(k));
-
             end
         end
 
