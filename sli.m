@@ -595,7 +595,7 @@ classdef sli
                         if (c_seq(j) < a_seq(j))
                             r.level = j-1;
                             r.index = c_seq(j)/a_seq(j);
-                            r = update_double(c);
+                            r = update_double(r);
                             return;
                         else
                             c_seq(j+1) = 1+a_seq(j+1)*log(c_seq(j));
