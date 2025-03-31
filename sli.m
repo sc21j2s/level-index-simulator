@@ -102,81 +102,60 @@ classdef sli
         end
 
         function r = plus(a, b)
-            % disp(a.value);
-            % disp(b.value);
             [a, b] = check_compatible_sizes(a,b);
-            % disp("Plus 0 ");
             r = a;
             for (k = 1:numel(a))
                 if iszero(a(k))
-                    % disp("Plus 1 ");
                     r(k) = b(k); return;
                 elseif iszero(b(k))
-                    % disp("Plus 2 ");
                     r(k) = a(k); return;
                 end
                 if (abs(a(k)) < abs(b(k)))
-                    % disp("Plus 3 ");
                     temp = a(k);
                     a(k) = b(k);
                     b(k) = temp;
                 end
                 if (a(k).sign ~= b(k).sign)
-                    % disp("Plus 4 ");
                     r(k) = minus(abs(a(k)),abs(b(k)));
-                    % disp("Plus 4b ");
                     r(k) = setfield(r(k), 'sign', a(k).sign);
-                    % disp("Plus 4c ");
                     r(k) = update_double(r(k));
-                    % disp("Plus 4d ");
                     continue;
                 end
                 r(k) = main_sli_algorithm(a(k), b(k), 'add');
             end
-            % disp("Plus + ");
         end
 
         function r = minus(a, b)
-            % disp("Minus - ");
-            % disp(a);
-            % disp(b);
             [a, b] = check_compatible_sizes(a,b);
             r = a;
             for (k = 1:numel(a))
                 if (a(k) == b(k))
-                    % disp("Minus 0");
                     r(k) = a(k).set_val(0);
                     continue;
                 end
                 if iszero(a(k))
-                    % disp("Minus 1");
                     r(k) = b(k);
                     r(k) = setfield(r(k), 'sign', ~b(k).sign);
                     r(k) = update_double(r(k));
                     continue;
                 elseif iszero(b(k))
-                    % disp("Minus 2");
                     r(k) = a(k);
                     continue;
                 end
                 if (a(k).sign ~= b(k).sign)
-                    % disp("Minus 3");
                     r(k) = plus(abs(a(k)),abs(b(k)));
                     r(k) = setfield(r(k), 'sign', a(k).sign);
                     r(k) = update_double(r(k));
                     continue;
                 end
                 if (abs(a(k)) < abs(b(k)))
-                    % disp("Minus 4");
                     temp = a(k);
                     a(k) = b(k);
                     b(k) = temp;
                     a(k) = setfield(a(k), 'sign', ~a(k).sign);
                 end
-                % disp("Minus 5");
                 r(k) = main_sli_algorithm(a(k), b(k), 'sub');
             end
-            % disp("Minus + ");
         end
 
         function r = uminus(a)
@@ -191,9 +170,7 @@ classdef sli
         end
 
         function r = times(a, b)
-            % disp("times 1");
             [a, b] = check_compatible_sizes(a,b);
-            % disp("times 2");
             r = a;
             for (k = 1:numel(a))
                 if iszero(a(k))
@@ -232,12 +209,9 @@ classdef sli
                 end
                 r(k) = update_double(r(k));
             end
-
-            % disp("times 3");
         end
 
         function R = mtimes(A, B)
-            % disp("mtimes")
             lbits = A(1).level_bits;
             ibits = A(1).index_bits;
             [m, k1] = size(A);
@@ -251,13 +225,10 @@ classdef sli
             for i = 1:m
                 for j = 1:n
                     for k = 1:k1
-                        R(i,j) = R(i,j) + A(i, k).*B(k, j); % Is it in the addition?
-                        % disp("to");
+                        R(i,j) = R(i,j) + A(i, k).*B(k, j);
                     end
                 end
             end
-
-            % disp("mtimes ++")
         end
 
         function r = rdivide(a, b)
@@ -554,31 +525,23 @@ classdef sli
         % Implementation after "The Symmetrix Level-Index System"
         % by Clenshaw and Turner, IMA J. Numer. Analysis, 8:4, 1988.
         function r = main_sli_algorithm(a, b, operation)
-            % disp("Main - ");
             r = a;
             % STEP 1
             a_seq(a.level) = exp(-a.index);
             for j=a.level-1:-1:1
                 a_seq(j) = exp(-1/a_seq(j+1));
             end
-            % disp("Main 0 ");
             b_seq = [];
             % STEP 2
             % Small case
             if (a.reciprocal == 0) && (b.reciprocal == 0)
-                % disp("Main 1 ");
                 if (a.level < b.level)
-                    % disp("Main a");
                     alpha_seq(b.level)=exp(-b.index);
                     for j=b.level-1:-1:a.level
-                        % disp("Main a loop --");
                         alpha_seq(j) = exp(-1/alpha_seq(j+1));
                     end
-                    % disp(alpha_seq)
                     beta_seq(a.level) = alpha_seq(a.level)/a_seq(a.level);
-                    % disp(beta_seq)
                 else
-                    % disp("Main b");
                     beta_seq(a.level) = exp(a.index - b.index);
                 end
                 for j=a.level-1:-1:1
@@ -586,20 +549,12 @@ classdef sli
                         exp((beta_seq(j+1)-1)/(a_seq(j+1)*beta_seq(j+1)));
                 end
                 if strcmp(operation, 'add')
-                    % disp("Main 0.8____")
                     c_seq(1) = 1 + beta_seq(1);
-                    % disp(c_seq(1));
-                    % disp("Main 0.8____ +");
                 elseif strcmp(operation, 'sub')
-                    % disp("Main 0.9____");
-                    % disp(beta_seq(1));
-                    c_seq(1) = 1 - beta_seq(1); % c_seq(1) becomes 0 because beta_seq(1) is 1!!!
-                    % disp(c_seq(1));
-                    % disp("Main 0.9____ +");
+                    c_seq(1) = 1 - beta_seq(1);
                 end
             % Mixed case
             elseif (a.reciprocal == 1) && (b.reciprocal == 0)
-                % disp("Main 2 ");
                 alpha_seq(b.level) = exp(-b.index);
                 for j=b.level-1:-1:1
                     alpha_seq(j) = ...
@@ -612,7 +567,6 @@ classdef sli
                 end
             % Big case
             else
-                % disp("Main 3 ");
                 b_seq(b.level) = a_seq(b.level)*exp(b.index);
                 for j=b.level-1:-1:1
                     b_seq(j) = ...
@@ -624,22 +578,17 @@ classdef sli
                     c_seq(1) = 1 - b_seq(1);
                 end
             end
-            % disp("Main -- ");
             % STEP 3
             h_index = 1;
             if (a.reciprocal == 1)
-                % disp("Main 10 ");
                 if (c_seq(1) < a_seq(1))
-                    % disp("Main 11 ");
                     h_index = 1;
                     r.reciprocal = 0;
                     h_seq(1) = -log(c_seq(1)/a_seq(1));
                 elseif (a.level == 1)
-                    % disp("Main 12 ");
                     h_index = 1;
                     h_seq(1) = a.index + log(c_seq(1));
                 else
-                    % disp("Main 13 ");
                     c_seq(2) = 1 + a_seq(2)*log(c_seq(1));
                     % STEP 4
                     for j = 2:a.level-1
@@ -664,23 +613,16 @@ classdef sli
                     end
                 end
             else
-                % disp("Main 14 ");
                 if (a_seq(1) * c_seq(1) > 1)
-                    % disp("Main 15 ");
                     r.reciprocal = 1;
                     r.level = 1;
                     r.index = log(a_seq(1)*c_seq(1));
                     r = update_double(r);
                     return;
                 elseif (a.level == 1)
-                    % disp("Main 16 ");
-                    % disp(c_seq(1))
-                    h_seq(1) = a.index - log(c_seq(1)); % infinite!!!! - c_seq(1) is 0 - log of 0!!!!!!!!
-                    % disp(h_seq(1))
+                    h_seq(1) = a.index - log(c_seq(1));
                     h_index = 1;
-                    % disp("Main 16 + ");
                 else
-                    % disp("Main 17 ");
                     c_seq(2) = 1 - a_seq(2)*log(c_seq(1));
                     % STEP 4
                     for j = 2:a.level-1
@@ -705,25 +647,15 @@ classdef sli
                     end
                 end
             end
-            % disp("Main 20 ");
-            % disp(h_index)
             % STEP 5
             r.level = h_index;
-            h = h_seq(h_index); % h has gone to infinite
+            h = h_seq(h_index);
 
-            % disp("r level: ");
-            % disp(r.level)
-
-            % disp("H: ");
-            % disp(h);
-
-            if (h == inf) % My modification to fix!!!
+            if (h == inf)
                 h = 0;
             else
-                while (h > 1)                   % Stuck in HERE!!!!
-                    % % disp("Main 21 ");
-                    % % disp(h);
-                    h = log(h);                 % When h -> inf, infinite loop!!
+                while (h > 1)
+                    h = log(h);
                     r.level = r.level + 1;
                 end
             end
