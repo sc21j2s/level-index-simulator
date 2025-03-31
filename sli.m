@@ -409,7 +409,7 @@ classdef sli
             end
         end
 
-        function r = update_sli(obj)
+        function r = update_sli(obj)    % This function has significant time penalty!
             r = obj;
             if (obj.level > 2^obj.level_bits)
                 r.level = 2^obj.level_bits;
@@ -595,7 +595,7 @@ classdef sli
                         if (c_seq(j) < a_seq(j))
                             r.level = j-1;
                             r.index = c_seq(j)/a_seq(j);
-                            r = update_double(c);
+                            r = update_double(r);
                             return;
                         else
                             c_seq(j+1) = 1+a_seq(j+1)*log(c_seq(j));
@@ -650,9 +650,14 @@ classdef sli
             % STEP 5
             r.level = h_index;
             h = h_seq(h_index);
-            while (h > 1)
-                h = log(h);
-                r.level = r.level + 1;
+
+            if (h == inf)
+                h = 0;
+            else
+                while (h > 1)
+                    h = log(h);
+                    r.level = r.level + 1;
+                end
             end
             r.index = h;
             r = update_double(r);
